@@ -9,15 +9,37 @@ const TO_ADDRESS = ETHEREUM_CONFIG.TO_ADDRESS;
 const USDT_CONTRACT_ADDRESS = ETHEREUM_CONFIG.USDT_CONTACT_ADDRESS;
 const provider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
 console.log('create provider', PROVIDER_URL);
-const signer = new ethers.Wallet(PRIVATE_KEY, provider)
+const signer = new ethers.Wallet(PRIVATE_KEY)
+// const signer = new ethers.Wallet(PRIVATE_KEY, provider)
 const usdtContract = new ethers.Contract(USDT_CONTRACT_ADDRESS, JSON.stringify(USDT_ABI), signer);
 const runEthers = async () => {
     // const signature = await signMessage('123');
     // await verifyMessage('123', signature);
-    await getERC20TokenDecimals();
-    await getERC20TokenBalance();
-    await transferERC20Token(1);
-    await transferETH(1);
+    // await getERC20TokenDecimals();
+    // await getERC20TokenBalance();
+    // await transferERC20Token(1);
+    // await transferETH(1);
+
+    // 离线生成
+    const transactionObject = {
+        nonce:12,
+        to: TO_ADDRESS,
+        value: '1',
+        gasLimit: '21000',
+        maxFeePerGas:'150000000000',
+        maxPriorityFeePerGas:'1000000000',
+        chainId:1,
+        type: 2,
+    };
+
+    const signedTxHash = await signer.signTransaction(
+        transactionObject,
+    );
+
+    console.log('交易签名：', signedTxHash);
+    const unsignedTx = await usdtContract.populateTransaction.transfer(TO_ADDRESS, '1')
+    console.log('交易data', unsignedTx.data)
+    console.log(ethers.utils.isAddress( TO_ADDRESS ))
     console.log('success')
 }
 
